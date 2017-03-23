@@ -112,6 +112,19 @@ class DatabaseUserPermissionCheck implements FormDataProviderInterface
             }
         } else {
             // A page or a record on a page is edited
+
+
+            if( $result['tableName'] == 'tt_content' && (!isset($result['parentPageRow']) || empty($result['parentPageRow']) ) ){
+                $uid = $result['databaseRow']['uid'];
+                $qResult = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow( '*','tt_content','uid='.$uid );
+                $qPResult = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow( '*','pages','uid='.$qResult['pid'] );
+                $result['parentPageRow'] = $qPResult;
+                $countCZY = count($result['databaseRow']);
+                if($countCZY <= 1){
+                    $result['databaseRow'] = $qResult;
+                }
+            }
+
             if ($result['tableName'] === 'pages') {
                 // A page record is edited, check edit rights of this record directly
                 $userPermissionOnPage = $backendUser->calcPerms($result['databaseRow']);
